@@ -9,6 +9,4 @@ def insertionSort(array):
             array[j + 1] = array[j]
             j -= 1
         array[j + 1] = key
-    return array
-            
-        
+    return array    
