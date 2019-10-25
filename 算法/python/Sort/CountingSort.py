@@ -6,7 +6,7 @@ def countingSort(A, k):
     for j in A:
         C[j] += 1
 
-    for i in range(1, k):
+    for i in range(1, k + 1):
         C[i] = C[i] + C[i - 1]
 
     for j in A:
