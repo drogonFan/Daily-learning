@@ -188,3 +188,77 @@ if __name__ == '__main__':
     else:
         print('Not stable')
 ```
+
+[Stack](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_3_A)
+
+```python
+def isOp(c):
+    if c in ('+', '-', '*', '/'):
+        return True
+    return False
+
+def cal(num1, num2, op):
+    if op == '+':
+        return num1 + num2
+    elif op == '-':
+        return num1 - num2
+    elif op == '*':
+        return num1 * num2
+    else:
+        return num1 / num2
+
+if __name__ == '__main__':
+    infos = input().split(' ')
+    stack = []
+    for f in infos:
+        if isOp(f):
+            num2 = stack.pop(-1)
+            num1 = stack.pop(-1)
+            stack.append(cal(num1, num2, f))
+        else:
+            stack.append(int(f))
+    print(stack.pop())
+```
+
+[Queue](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_3_B)
+```python
+if __name__ == '__main__':
+    args = input().split(' ')
+    n = int(args[0])
+    t = int(args[1])
+
+    queue = []
+
+    prolist = {}
+    finish = []
+    for i in range(n):
+        datas = input().split(' ')
+        prolist[datas[0]] = int(datas[1])
+        # add to queue by order
+        queue.append(datas[0])
+    
+    tottime = 0
+    while len(queue) > 0:
+        name = queue.pop(0)
+        if prolist[name] == 0:
+            pass
+        else:
+            if prolist[name] > t:
+                # has some task unfinish
+                prolist[name] -= t
+                tottime += t
+                queue.append(name)
+            else:
+                # finish all task, quit
+                finish.append('%s %d' %(name, tottime + prolist[name]))
+                tottime += prolist[name]
+                prolist[name] = 0
+    
+    for info in finish:
+        print(info)
+```
+
+[Doubly Linked List](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_3_C)
+```python
+
+```
