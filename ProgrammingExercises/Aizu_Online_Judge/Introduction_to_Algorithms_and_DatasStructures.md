@@ -444,6 +444,375 @@ if __name__ == '__main__':
                 print('no')
 ```
 
+[Allocation](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_4_D)
+```python
+import sys
+def slove(goods, carnum, P):
+    # 一个二分查找
+    tot_good = len(goods)
+    cur_good = 0
+    for _ in range(carnum):
+        load = 0
+        while cur_good < tot_good and goods[cur_good] <= P -load:
+            load += goods[cur_good]
+            cur_good += 1
+    if cur_good == tot_good:
+        return True
+    else:
+        return False
+
+if __name__ == '__main__':
+
+    datas = input().split(' ')
+    good_num = int(datas[0])
+    car_num = int(datas[1])
+    goods = []
+    for _ in range(good_num):
+        goods.append(int(input()))
+
+    left = 0
+    right = sys.maxsize
+    while left < right:
+        mid = (left + right) // 2
+        if slove(goods, car_num, mid):
+            # 当前的P较大
+            right = mid
+        else:
+            left = mid + 1
+    print(right)
+```
+
+[Merge Sort](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_5_B)
+```python
+import sys
+
+def merge(A, left, mid, right):
+    L = A[left: mid] + [sys.maxsize]
+    R = A[mid: right] + [sys.maxsize]
+    i = j = count = 0
+    k = left
+    while k < right:
+        count += 1
+        if L[i] <= R[j]:
+            A[k] = L[i]
+            i += 1
+        else:
+            A[k] = R[j]
+            j += 1
+        k += 1
+    return count
+
+def merge_sort(A, left, right):
+    if right - left > 1:
+        mid = (left + right) // 2
+        lcost = merge_sort(A, left, mid)
+        rcost = merge_sort(A, mid, right)
+        tot = merge(A, left, mid, right)
+        return tot + lcost + rcost
+    else:
+        return 0
+
+if __name__ == '__main__':
+    n = int(input())
+    A = [int(i) for i in input().split()]
+    count = merge_sort(A, 0, n)
+    print(str(A).replace(',', '').replace('[', '').replace(']', ''))
+    print(count)
+```
+
+[Quick Sort](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_6_C)
+```python
+import copy
+import sys
+
+def partition(A, p, r):
+    key = A[r][1]
+    i = p
+    for j in range(p, r):
+        # 把小的放在左边
+        if A[j][1] <= key:
+            A[i], A[j] = A[j], A[i]
+            i += 1
+    # 最后交换key值
+    A[r], A[i] = A[i], A[r]
+    return i
+
+def quick_sort(A, p, r):
+    if p < r:
+        q = partition(A, p, r)
+        quick_sort(A, p, q - 1)
+        quick_sort(A, q + 1, r)
+
+def merge(A, left, mid, right):
+    L = A[left: mid] + [(0, sys.maxsize)]
+    R = A[mid: right] + [(0, sys.maxsize)]
+    i = j = 0
+    k = left
+    while k < right:
+        if L[i][1] <= R[j][1]:
+            A[k] = L[i]
+            i += 1
+        else:
+            A[k] = R[j]
+            j += 1
+        k += 1
+
+def merge_sort(A, left, right):
+    if right - left > 1:
+        mid = (left + right) // 2
+        merge_sort(A, left, mid)
+        merge_sort(A, mid, right)
+        merge(A, left, mid, right)
+
+
+if __name__ == '__main__':
+    n = int(input())
+    numlist = []
+    for _ in range(n):
+        datas = input().split(' ')
+        numlist.append((datas[0], int(datas[1])))
+    list2 = copy.deepcopy(numlist)
+    quick_sort(numlist, 0, n - 1)
+    merge_sort(list2, 0, n)
+    # 利用稳定排序去验证是否稳定
+    if list2 == numlist:
+        print('Stable')
+    else:
+        print('Not stable')
+    for c, num in numlist:
+        print('%s %d' % (c, num))
+```
+
+[The Number of Inversions](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_5_D)
+**这道题直接求解的话时间复杂度是$O(n^2)$，但是可以采用分治的思想，将问题规模减小，这里采用了类似与归并排序的算法**
+```python
+import sys
+
+def merge(numlist, left, mid, right):
+    L = numlist[left:mid] + [sys.maxsize]
+    R = numlist[mid:right] + [sys.maxsize]
+    i = j = 0
+    k = left
+    inv = 0
+    while k < right:
+        if L[i] < R[j]:
+            numlist[k] = L[i]
+            i += 1
+        else:
+            inv += (mid - left - i)
+            numlist[k] = R[j]
+            j += 1
+        k += 1
+    return inv
+
+
+def cal_inv(numlist, left, right):
+    if right > left + 1:
+        mid = (left + right) // 2
+        linv = cal_inv(numlist, left, mid)
+        rinv = cal_inv(numlist, mid, right)
+        return linv + rinv + merge(numlist, left, mid, right)
+    else:
+        return 0
+    
+
+if __name__ == '__main__':
+    n  = int(input())
+    numlist = [int(num) for num in input().split(' ')]
+    print(cal_inv(numlist, 0, n))
+```
+
+[Counting Sort](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_6_A)
+**计数排序**
+```python
+def count_sort(numlist, n):
+    C = [0 for i in range(n + 1)]
+    B = [0 for i in range(len(numlist))]
+    # store times that num has appear
+    for num in numlist:
+        C[num] += 1
+    # cal index
+    for i in range(1, n + 1):
+        C[i] += C[i - 1]
+    for n in range(len(numlist), 0, -1):
+        C[numlist[n - 1]] -= 1
+        B[C[numlist[n - 1]]] = numlist[n - 1]
+
+    return B
+
+if __name__ == '__main__':
+    n = int(input())
+    numlist = [int(num) for num in input().split(' ')]
+    numlist = count_sort(numlist, max(numlist))
+    print(str(numlist).replace(',', '').replace('[', '').replace(']', ''))
+```
+
+[Partition](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_6_B)
+```python
+def partition(A, p, r):
+    key = A[r]
+    i = p
+    for j in range(p, r):
+        # 把小的放在左边
+        if A[j] <= key:
+            A[i], A[j] = A[j], A[i]
+            i += 1
+    # 最后交换key值
+    A[r], A[i] = A[i], A[r]
+    return i
+
+
+if __name__ == '__main__':
+    n = int(input())
+    numlist = [int(num) for num in input().split(' ')]
+    index = partition(numlist, 0, len(numlist) - 1)
+    out = str(numlist[0:index]).replace(',', '').replace('[', '').replace(']', '') \
+        + ' [' + str(numlist[index]) + '] '\
+        + str(numlist[index + 1:]).replace(',', '').replace('[', '').replace(']', '')
+    print(out)
+```
+
+```python
+# 又是一个超时答案，数据量太大了，性能是真的差，使用了标准的左孩子右兄弟的做法
+class Node():
+    def __init__(self, value):
+        self.value = value
+        self.deep = -1
+        self.parent = None
+        self.left = None
+        self.right = None
+        self.child = None
+    
+    def add_child(self, node):
+        if self.child == None:
+            self.child = node
+            self.child.parent = self
+        else:
+            curnode = self.child
+            while curnode.right != None:
+                curnode = curnode.right
+            curnode.right = node
+            node.left = curnode
+            node.parent = self
+
+    def get_childs(self):
+        childs = []
+        if self.child != None:
+            childs.append(self.child.value)
+            curnode = self.child
+            while curnode.right != None:
+                childs.append(curnode.right.value)
+                curnode = curnode.right
+        return childs
+    
+    def set_deep(self, deep):
+        self.deep = deep
+        if self.child != None:
+            curnode = self.child
+            curnode.set_deep(deep + 1)
+            while curnode.right != None:
+                curnode.right.set_deep(deep + 1)
+                curnode = curnode.right
+
+
+if __name__ == '__main__':
+    n = int(input())
+    tree = {}
+    for i in range(n):
+        tree[i] = Node(i)
+
+    for _ in range(n):
+        datas = [int(num) for num in input().split(' ')]
+        nodeid = datas[0]
+        if datas[1] > 0:
+            for cid in datas[2:]:
+                tree[nodeid].add_child(tree[cid])
+
+    for i in range(n):
+        curnode = tree[i]
+        if curnode.parent is None:
+            # this is root
+            curnode.set_deep(0)
+            break
+            
+    
+    for i in range(n):
+        curnode = tree[i]
+        if curnode.child == None:
+            nodetype = 'leaf'
+        else:
+            nodetype = 'internal node'
+        if curnode.parent == None:
+            nodetype = 'root'
+            parent = -1
+        else:
+            parent = curnode.parent.value
+        
+        
+        childs = curnode.get_childs()
+        print('node %d: parent = %d, depth = %d, %s, %s' % (i, parent,curnode.deep, nodetype, childs) )
+
+# 想过只能走一些歪门邪道,这根本就不是算是一棵树
+class Node():
+    def __init__(self, value):
+        self.value = value
+        self.deep = -1
+        self.parent = None
+        self.left = None
+        self.right = None
+        self.childs = []
+
+def setdeep(tree, i, deep):
+    tree[i].deep = deep
+    for child in tree[i].childs:
+        tree[child].parent = i
+        if child < len(tree):
+            setdeep(tree, child, deep + 1)
+
+if __name__ == '__main__':
+    n = int(input())
+    tree = {}
+
+    for _ in range(n):
+        datas = [int(num) for num in input().split(' ')]
+        nodeid = datas[0]
+        if nodeid not in tree.keys():
+            tree[nodeid] = Node(nodeid)
+
+        if datas[1] > 0:
+            tree[nodeid].childs = datas[2:]
+            for child in tree[nodeid].childs:
+                if child not in tree.keys():
+                    tree[child] = Node(child)
+                tree[child].parent = nodeid
+
+
+    for i in range(n):
+        curnode = tree[i]
+        if curnode.parent is None:
+            # this is root
+            setdeep(tree, i, 0)
+            break
+            
+    
+    for i in range(n):
+        curnode = tree[i]
+        if len(curnode.childs) == 0:
+            nodetype = 'leaf'
+        else:
+            nodetype = 'internal node'
+        if curnode.parent == None:
+            nodetype = 'root'
+            parent = -1
+        else:
+            parent = curnode.parent
+        
+        childs = curnode.childs
+        print('node %d: parent = %d, depth = %d, %s, %s' % (i, parent,curnode.deep, nodetype, childs) )
+```
+
+
+
 
 [Exhaustive Search](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_5_A)
 ```python
