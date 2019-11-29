@@ -894,7 +894,455 @@ if __name__ == '__main__':
             % (i, parent,curnode.sib, deg,  curnode.deep, curnode.height, nodetype) )
 ```
 
+[Tree Walk](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_7_C)
+使用递归实现，比较简单：
 
++ 前序遍历：根左右
++ 中序遍历：左根右
++ 后序遍历：左右根
+```python
+class Node():
+    def __init__(self, value):
+        self.value = value
+        self.parent = -1
+        self.left = -1
+        self.right = -1
+
+def preorder(tree, root):
+    if root == -1:
+        pass
+    else:
+        print(' %d' % root, end='')
+        preorder(tree, tree[root].left)
+        preorder(tree, tree[root].right)
+
+def inorder(tree, root):
+    if root == -1:
+        pass
+    else:
+        inorder(tree, tree[root].left)
+        print(' %d' % root, end='')
+        inorder(tree, tree[root].right)
+
+def postorder(tree, root):
+    if root == -1:
+        pass
+    else:
+        postorder(tree, tree[root].left)
+        postorder(tree, tree[root].right)
+        print(' %d' % root, end='')
+
+if __name__ == '__main__':
+    n = int(input())
+    tree = {}
+    root = -1
+    for _ in range(n):
+        datas = [int(num) for num in input().split(' ')]
+        nodeid = datas[0]
+        if nodeid not in tree.keys():
+            tree[nodeid] = Node(nodeid)
+        tree[nodeid].left = left = int(datas[1])
+        tree[nodeid].right = right = int(datas[2])
+        if left != -1:
+            if left not in tree.keys():
+                tree[left] = Node(left)
+            tree[left].parent = nodeid
+        if right != -1:
+            if right not in tree.keys():
+                tree[right] = Node(right)
+            tree[right].parent = nodeid
+
+    for i in range(n):
+        if tree[i].parent == -1:
+            # this is root
+            root = i
+            break
+            
+    print('Preorder')
+    preorder(tree, root)
+    print()
+
+    print('Inorder')
+    inorder(tree, root)
+    print()
+
+    print('Postorder')
+    postorder(tree, root)
+    print()
+```
+
+[Reconstruction of a Tree](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_7_D)
+根据前序遍历和中序遍历确定一棵树
+```python
+class Node():
+    def __init__(self, value):
+        self.value = value
+        self.left = None
+        self.right = None
+
+def postorder(root, out):
+    if root == None:
+        pass
+    else:
+        postorder(root.left, out)
+        postorder(root.right, out)
+        out.append(root.value)
+
+def build_tree(pres, ins):
+    if len(pres) < 1:
+        return None
+    else:
+        node = Node(pres[0])
+        index = 0
+        for i in range(len(ins)):
+            if ins[i] == pres[0]:
+                index = i
+                break
+        
+        node.left = build_tree(pres[1:1+index], ins[0:index])
+        node.right = build_tree(pres[1+index:], ins[1+index:])
+        return node
+
+
+if __name__ == '__main__':
+    n = int(input())
+    pres = [int(num) for num in input().split(' ')]
+    ins = [int(num) for num in input().split(' ')]
+    root = build_tree(pres, ins)
+    out = []
+    postorder(root, out)
+    print(str(out).replace(',', '').replace('[', '').replace(']', ''))
+
+```
+
+[Binary Search Tree I](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_8_A)
+```python
+class Node():
+    def __init__(self, value, parent=None):
+        self.value = value
+        self.parent = parent
+        self.left = None
+        self.right = None
+
+class BinaryTree():
+    def __init__(self):
+        self.root = None
+    
+    def insert(self, value):
+        if self.root == None:
+            self.root = Node(value)
+        else:
+            parentnode = curnode = self.root
+            while curnode != None:
+                parentnode = curnode
+                if curnode.value > value:
+                    curnode = curnode.left
+                else:
+                    curnode = curnode.right
+            if value > parentnode.value:
+                parentnode.right = Node(value)
+            else:
+                parentnode.left = Node(value)
+
+    def preorder(self, root):
+        if root == None:
+            pass
+        else:
+            print(' %d' % root.value, end='')
+            self.preorder(root.left)
+            self.preorder(root.right)
+
+    def inorder(self, root):
+        if root == None:
+            pass
+        else:
+            self.inorder(root.left)
+            print(' %d' % root.value, end='')
+            self.inorder(root.right)
+
+if __name__ == '__main__':
+    n = int(input())
+    binarytree = BinaryTree()
+    for _ in range(n):
+        common = input()
+        if common[0] == 'i':
+            binarytree.insert(int(common[7:]))
+        else:
+            binarytree.inorder(binarytree.root)
+            print()
+            binarytree.preorder(binarytree.root)
+            print()
+```
+
+[Binary Search Tree II](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_8_B)
+```python
+class Node():
+    def __init__(self, value, parent=None):
+        self.value = value
+        self.parent = parent
+        self.left = None
+        self.right = None
+
+class BinaryTree():
+    def __init__(self):
+        self.root = None
+    
+    def insert(self, value):
+        if self.root == None:
+            self.root = Node(value)
+        else:
+            parentnode = curnode = self.root
+            while curnode != None:
+                parentnode = curnode
+                if curnode.value > value:
+                    curnode = curnode.left
+                else:
+                    curnode = curnode.right
+            if value > parentnode.value:
+                parentnode.right = Node(value)
+            else:
+                parentnode.left = Node(value)
+
+    def find(self, value):
+        curnode = self.root
+        while curnode != None:
+            if curnode.value == value:
+                return True
+            elif curnode.value < value:
+                curnode = curnode.right
+            else:
+                curnode = curnode.left
+        return False
+
+    def preorder(self, root):
+        if root == None:
+            pass
+        else:
+            print(' %d' % root.value, end='')
+            self.preorder(root.left)
+            self.preorder(root.right)
+
+    def inorder(self, root):
+        if root == None:
+            pass
+        else:
+            self.inorder(root.left)
+            print(' %d' % root.value, end='')
+            self.inorder(root.right)
+
+if __name__ == '__main__':
+    n = int(input())
+    binarytree = BinaryTree()
+    for _ in range(n):
+        common = input()
+        if common[0] == 'i':
+            binarytree.insert(int(common[7:]))
+        elif common[0] == 'f':
+            if binarytree.find(int(common[5:])):
+                print('yes')
+            else:
+                print('no')
+        else:
+            binarytree.inorder(binarytree.root)
+            print()
+            binarytree.preorder(binarytree.root)
+            print()
+```
+
+[Binary Search Tree III]()
+二叉树删除的时候的三种情况（z为被删除结点）：
+
++ 当z没有子节点时，直接删除z
++ 当z有一个子节点时，将z的子节点直接提升
++ 当z有两个子节点时，选取**中序遍历在z后面的结点**替代z，即右结点的最左边的结点
+
+```python
+class Node():
+    def __init__(self, value, parent=None):
+        self.value = value
+        self.parent = parent
+        self.left = None
+        self.right = None
+
+class BinaryTree():
+    def __init__(self):
+        self.root = None
+    
+    def insert(self, value):
+        if self.root == None:
+            self.root = Node(value)
+        else:
+            parentnode = curnode = self.root
+            while curnode != None:
+                parentnode = curnode
+                if curnode.value > value:
+                    curnode = curnode.left
+                else:
+                    curnode = curnode.right
+            if value > parentnode.value:
+                parentnode.right = Node(value)
+            else:
+                parentnode.left = Node(value)
+
+    def find(self, value):
+        c, _ = self.findvalue(value)
+        if c is None:
+            return False
+        else:
+            return True
+
+    def findvalue(self, value):
+        parentnode = curnode = self.root
+        while curnode != None:
+            if value == curnode.value:
+                return curnode, parentnode
+            parentnode = curnode
+            if value > curnode.value:
+                curnode = curnode.right
+            else:
+                curnode = curnode.left
+        return None, None
+    
+    def replace_child(self, parentnode, childnode, newnode):
+        if parentnode == self.root:
+            self.root = newnode
+        elif parentnode.value > childnode.value:
+            parentnode.left = newnode
+        else:
+            parentnode.right = newnode
+    
+    def delete(self, value):
+        curnode, parentnode = self.findvalue(value)
+        if curnode is None:
+            # 没有找到这个结点，无法删除
+            return False
+        if curnode.left == None and curnode.right == None:
+            # 被删除结点的左右子树都为空，直接将当前结点删除
+            self.replace_child(parentnode, curnode, None)
+        elif curnode.right == None:
+            # 右子树为空，使用左子树代替
+            self.replace_child(parentnode, curnode, curnode.left)
+        elif curnode.left == None:
+            # 左子树为空，使用右子树代替
+            self.replace_child(parentnode, curnode, curnode.right)
+        else:
+            # 左右子树都存在的话， 找到一个代替结点
+            p = curnode
+            r = curnode.right
+            while r.left != None:
+                p = r
+                r = r.left
+            curnode.value = r.value
+            self.replace_child(p, r, r.right)
+        return True
+
+    def preorder(self, root):
+        if root == None:
+            pass
+        else:
+            print(' %d' % root.value, end='')
+            self.preorder(root.left)
+            self.preorder(root.right)
+
+    def inorder(self, root):
+        if root == None:
+            pass
+        else:
+            self.inorder(root.left)
+            print(' %d' % root.value, end='')
+            self.inorder(root.right)
+
+if __name__ == '__main__':
+    n = int(input())
+    binarytree = BinaryTree()
+    for _ in range(n):
+        common = input()
+        if common[0] == 'i':
+            binarytree.insert(int(common[7:]))
+        elif common[0] == 'f':
+            if binarytree.find(int(common[5:])):
+                print('yes')
+            else:
+                print('no')
+        elif common[0] == 'd':
+            binarytree.delete(int(common[7:]))
+        else:
+            binarytree.inorder(binarytree.root)
+            print()
+            binarytree.preorder(binarytree.root)
+            print()
+```
+
+[Treap](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_8_D)
+Treap:
++ **binary-search-tree property**. If v is a left child of u, then v.key<u.key and if v is a right child of u, then u.key<v.key
++ **heap property**. If v is a child of u, then v.priority<u.priority
+```python
+
+```
+
+[Complete Binary Tree](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_9_A)
+```python
+def slove(nodelist):
+    for i in range(len(nodelist)):
+        out = 'node %d: key = %d, ' % (i + 1, nodelist[i])
+        if i > 0:
+            # 注意计算父结点的时候，是向下取整(i - 1)//2
+            out += 'parent key = %d, ' % (nodelist[(i - 1)//2])
+        if 2 * i + 1 < len(nodelist):
+            out += 'left key = %d, ' % (nodelist[2 * i + 1])
+        if 2 * i + 2 < len(nodelist):
+            out += 'right key = %d, ' % (nodelist[2 * i + 2])
+        print(out)
+
+if __name__ == '__main__':
+    n = input()
+    nodelist = [int(num) for num in input().split(' ')]
+    slove(nodelist)
+```
+
+[Maximum Heap](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_9_B)
+```python
+class Heap():
+    def __init__(self, numlist):
+        self.datas = numlist
+        self.size = len(numlist)
+        self.buildMaxHeap()
+
+    def maxHeapify(self, i):
+        # 构建最大堆
+        if i > self.size:
+            return
+        
+        l = i * 2 + 1
+        r = i * 2 + 2
+        max_index = i
+
+        if l < self.size and self.datas[l] > self.datas[max_index]:
+            max_index = l
+        if r < self.size and self.datas[r] > self.datas[max_index]:
+            max_index = r
+        
+        if max_index != i:
+            self.datas[max_index], self.datas[i] = self.datas[i], self.datas[max_index]
+            self.maxHeapify(max_index)
+    
+    def buildMaxHeap(self):
+        index = self.size // 2
+        while index >= 0:
+            self.maxHeapify(index)
+            index -= 1
+
+    def show(self):
+        print(' ' + str(self.datas).replace(',', '').replace('[', '').replace(']', ''))
+
+
+if __name__ == '__main__':
+    n = input()
+    numlist = [int(num) for num in input().split(' ')]
+    maxheap = Heap(numlist)
+    maxheap.show()
+```
 
 
 [Exhaustive Search](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_5_A)
