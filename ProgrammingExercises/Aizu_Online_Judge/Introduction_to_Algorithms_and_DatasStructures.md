@@ -1344,6 +1344,75 @@ if __name__ == '__main__':
     maxheap.show()
 ```
 
+[Priority Queue](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_9_C)
+```python
+class PriorityQueue():
+    def __init__(self, numlist):
+        self.datas = numlist
+        self.size = len(numlist)
+        self.buildMaxHeap()
+
+    def minHeapify(self, i):
+        if i > self.size:
+            return
+        
+        l = i * 2 + 1
+        r = i * 2 + 2
+        min_index = i
+
+        if l < self.size and self.datas[l] > self.datas[min_index]:
+            min_index = l
+        if r < self.size and self.datas[r] > self.datas[min_index]:
+            min_index = r
+        
+        if min_index != i:
+            self.datas[min_index], self.datas[i] = self.datas[i], self.datas[min_index]
+            self.minHeapify(min_index)
+    
+    def buildMaxHeap(self):
+        index = self.size // 2
+        while index >= 0:
+            self.minHeapify(index)
+            index -= 1
+
+    def heapIncreaseKey(self, i):
+        while (i - 1) // 2 >= 0 and self.datas[i] > self.datas[(i - 1) // 2]:
+            self.datas[i], self.datas[(i - 1) // 2] = self.datas[(i - 1) // 2], self.datas[i]
+            i = (i - 1) // 2
+
+    def insert(self, value):
+        self.datas.append(value)
+        self.heapIncreaseKey(self.size)
+        self.size += 1
+    
+    def heapExtractMax(self):
+        if self.size < 1:
+            return None
+        else:
+            maxnum = self.datas[0]
+            self.datas[0] = self.datas[self.size - 1]
+            self.datas.pop(-1)
+            self.size -= 1
+            self.minHeapify(0)
+            return maxnum
+    
+
+    def show(self):
+        print(' ' + str(self.datas).replace(',', '').replace('[', '').replace(']', ''))
+
+
+if __name__ == '__main__':
+    maxheap = PriorityQueue([])
+    while True:
+        common = input()
+        if common[0] == 'i':
+            maxheap.insert(int(common[7:]))
+        elif common == 'extract':
+            print(maxheap.heapExtractMax())
+        else:
+            break
+```
+
 
 [Exhaustive Search](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_5_A)
 ```python
@@ -1432,3 +1501,249 @@ if __name__ == '__main__':
     print(fib(n, meolist))
 ```
 
+
+[Graph](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_11_A)
+邻接矩阵法表示图
+```python
+if __name__ == '__main__':
+    n = int(input())
+    graph = [[0 for i in range(n)] for _ in range(n)]
+    for i in range(n):
+        datas = [int(num) for num in input().split(' ')]
+        if datas[1] > 0:
+            for j in datas[2:]:
+                graph[datas[0] - 1][j - 1] = 1
+
+    for row in graph:
+        print(str(row).replace(',', '').replace('[', '').replace(']', ''))
+```
+
+[Depth First Search](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_11_B)
+这简直是我写的最差的DFS，自己看着都觉得恶心
+```python
+
+
+if __name__ == '__main__':
+    n = int(input())
+    graph = [[0 for i in range(n)] for _ in range(n)]
+    frist = [0 for _ in range(n)]
+    end = [0 for _ in range(n)]
+    visit = [False for _ in range(n)]
+    # get the group
+    for i in range(n):
+        datas = [int(num) for num in input().split(' ')]
+        if datas[1] > 0:
+            for j in datas[2:]:
+                graph[datas[0] - 1][j - 1] = 1
+
+    visit[0] = True
+    frist[0] = s = 1
+    stack = [0]
+
+    while len(stack) != 0:
+        point = stack.pop(-1)
+        flag = False
+        for i in range(n):
+            if graph[point][i] == 1 and visit[i] is False:
+                visit[i] = True
+                flag = True
+                s += 1
+                frist[i] = s
+                stack.append(point)
+                stack.append(i)
+                break
+        if flag is False:
+            s += 1
+            end[point] = s
+        
+        if len(stack) == 0:
+            for i in range(n):
+                if visit[i] is False:
+                    visit[i] = True
+                    s += 1
+                    frist[i] = s
+                    stack.append(i)
+                    break
+            
+    for i in range(n):
+        print('%d %d %d' % (i+1, frist[i], end[i]))
+```
+
+[Breadth First Search](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_11_C)
+同样也是写的最烂的BFS
+```python
+if __name__ == '__main__':
+    n = int(input())
+    graph = [[0 for i in range(n)] for _ in range(n)]
+    # get the group
+    for i in range(n):
+        datas = [int(num) for num in input().split(' ')]
+        if datas[1] > 0:
+            for j in datas[2:]:
+                graph[datas[0] - 1][j - 1] = 1
+
+    queue = [0]
+    visit = [False for _ in range(n)]
+    visit[0] = True
+    depths = [0 for _ in range(n)]
+    while len(queue) != 0:
+        point = queue.pop(0)
+        for i in range(n):
+            if graph[point][i] == 1 and visit[i] is False:
+                queue.append(i)
+                visit[i] = True
+                depths[i] = depths[point] + 1
+        if len(queue) == 0:
+            for i in range(n):
+                if visit[i] is False:
+                    queue.append(i)
+                    depths[i] = -1
+                    visit[i] = True
+
+    for i in range(n):
+        print('%d %d' % (i + 1, depths[i]))
+```
+
+[Connected Components](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_11_D)
+无向图求连通分量：使用BFS或者并查集，感觉BFS没有并查集效率高
+
+随后进行了尝试，发现即便是并查集，在几百万的测试数据下还是速度很慢
+```python
+if __name__ == '__main__':
+    m, n = [int(num) for num in input().split(' ')]
+    # 邻接表方法存储链表
+    graph = [[] for _ in range(m)]
+    visit = [False for _ in range(n)]
+    # get the group
+    for i in range(n):
+        datas = [int(num) for num in input().split(' ')]
+        graph[datas[0]].append(datas[1])
+        graph[datas[1]].append(datas[0])
+
+    # DFS
+    stack = []
+    visit = [False for _ in range(m)]
+    color = [0 for _ in range(m)]
+    c = 1
+
+    stack.append(0)
+    visit[0] = True
+
+    while len(stack) > 0:
+        point = stack[-1]
+        flag = False
+        for p in graph[point]:
+            if visit[p] is False:
+                flag = True
+                visit[p] = True
+                color[p] = color[point]
+                stack.append(p)
+                break
+        if flag is False:
+            stack.pop(-1)
+        
+        if len(stack) == 0:
+            for i in range(m):
+                if visit[i] is False:
+                    visit[i] = True
+                    color[i] = color[point] + 1
+                    stack.append(i)
+                    break
+    o = int(input())
+    for _ in range(o):
+        p, q = [int(num) for num in input().split(' ')]
+        if color[p] == color[q]:
+            print('yes')
+        else:
+            print('no')
+
+# 并查集
+class Union():
+    def __init__(self, n):
+        self.pre = [i for i in range(n)]
+        self.rank = [1 for _ in range(n)]
+
+    def union(self, a, b):
+        aroot = self.find(a)
+        broot = self.find(b)
+        if aroot == broot:
+            return
+        if self.rank[aroot] > self.rank[broot]:
+            self.pre[broot] = self.pre[aroot]
+            self.rank[broot] += self.rank[aroot]
+        else:
+            self.pre[aroot] = self.pre[broot]
+            self.rank[aroot] += self.rank[broot]
+
+
+    def find(self, n):
+        while self.pre[n] != n:
+            n = self.pre[n]
+        return n
+
+    def issame(self, a, b):
+        if self.find(a) == self.find(b):
+            return True
+        return False
+
+if __name__ == '__main__':
+    m, n = [int(num) for num in input().split(' ')]
+    union = Union(m)
+
+    for _ in range(n):
+        datas = [int(num) for num in input().split(' ')]
+        union.union(datas[0], datas[1])
+
+    o = int(input())
+    for _ in range(o):
+        p, q = [int(num) for num in input().split(' ')]
+        if union.issame(p, q):
+            print('yes')
+        else:
+            print('no')
+
+
+# 效率更高的并查集
+import sys
+class Union():
+    def __init__(self, n):
+        self.pre = [i for i in range(n)]
+        self.rank = [1 for _ in range(n)]
+
+    def union(self, a, b):
+        aroot = self.find(a)
+        broot = self.find(b)
+        if aroot == broot:
+            return
+        if self.rank[aroot] < self.rank[broot]:
+            aroot, broot = broot, aroot
+        self.pre[broot] = self.pre[aroot]
+        if self.rank[aroot] == self.rank[broot]:
+            self.rank[aroot] += 1
+
+    def find(self, n):
+        while self.pre[n] != n:
+            n = self.pre[n]
+        return n
+
+    def issame(self, a, b):
+        if self.find(a) == self.find(b):
+            return True
+        return False
+
+if __name__ == '__main__':
+    m, n = map(int, sys.stdin.readline().split())
+    union = Union(m)
+
+    for _ in range(n):
+        a, b = map(int, sys.stdin.readline().split())
+        union.union(a, b)
+
+    o = int(input())
+    for _ in range(o):
+        p, q = map(int, sys.stdin.readline().split())
+        if union.issame(p, q):
+            print('yes')
+        else:
+            print('no')
+```
